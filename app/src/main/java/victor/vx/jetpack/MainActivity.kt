@@ -1,9 +1,11 @@
 package victor.vx.jetpack
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -18,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -47,10 +51,128 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+fun TextEnter() {
+    Text(
+        text = "Entre aqui",
+        fontFamily = fontExo,
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 24.sp,
+        color = Color.Blue,
+        modifier = Modifier.padding(bottom = 16.dp)
+    )
+}
+
+@Composable
+fun TextWelcome() {
+    Text(
+        text = "Bem-vindo de volta, você fez falta!",
+        style = MaterialTheme.typography.bodyMedium,
+        fontSize = 16.sp,
+        color = Color.Black,
+        modifier = Modifier.padding(bottom = 30.dp)
+    )
+}
+
+
+@Composable
+fun CustomTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    labelText: String,
+    icon: ImageVector,
+    isPassword: Boolean = false,
+    isPasswordVisible: MutableState<Boolean> = mutableStateOf(false)
+) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        leadingIcon = {
+            Image(
+                imageVector = icon,
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(Color.Black)
+            )
+        },
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            focusedContainerColor = Color.LightGray,
+            unfocusedContainerColor = Color(0x171F41BB),
+            cursorColor = Color.Black,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        ),
+        label = {
+            Text(
+                text = labelText,
+                style = TextStyle(
+                    color = Color.Black
+                )
+            )
+        },
+        keyboardOptions = KeyboardOptions(
+            autoCorrect = isPassword,
+            imeAction = if (isPassword) ImeAction.Done else ImeAction.Next
+        ),
+        singleLine = true,
+        visualTransformation = if (isPassword && !isPasswordVisible.value) PasswordVisualTransformation() else VisualTransformation.None,
+        trailingIcon = {
+            if (isPassword) {
+                IconButton(onClick = { isPasswordVisible.value = !isPasswordVisible.value }) {
+                    val visibilityOn = painterResource(id = R.drawable.ic_visibility)
+                    val visibilityOff = painterResource(id = R.drawable.ic_visibility_off)
+
+                    Icon(
+                        painter = if (isPasswordVisible.value) visibilityOff else visibilityOn,
+                        contentDescription = if (isPasswordVisible.value) "Hide password" else "Show password",
+                        modifier = Modifier.size(26.dp),
+                        tint = Color.Black
+                    )
+                }
+            }
+        },
+        shape = RoundedCornerShape(20.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 15.dp)
+    )
+}
+
+@Composable
+fun TextForgotPassword(modifier: Modifier = Modifier) {
+    Text(
+        text = "Esqueceu a senha?",
+        modifier = modifier,
+        style = TextStyle(color = Color.Blue, fontSize = 14.sp)
+    )
+}
+
+@Composable
+fun LoginBtn(
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = { onClick() },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Color.Blue),
+        shape = RoundedCornerShape(10.dp)
+    ) {
+        Text(
+            text = "Conecte-se",
+            fontSize = 16.sp,
+            color = Color.White
+        )
+    }
+}
+
+@SuppressLint("UnrememberedMutableState")
+@Composable
 fun LoginPage() {
-    var email by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf<String>("") }
     var password by remember { mutableStateOf("") }
-    var isPasswordVisible by remember { mutableStateOf(false) }
+    val isPasswordVisible = remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -67,123 +189,33 @@ fun LoginPage() {
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Entre aqui",
-                fontFamily = fontExo,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 24.sp,
-                color = Color.Blue,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            TextEnter()
 
-            Text(
-                text = "Bem-vindo de volta, você fez falta!",
-                style = MaterialTheme.typography.bodyMedium,
-                fontSize = 16.sp,
-                color = Color.Black,
-                modifier = Modifier.padding(bottom = 30.dp)
-            )
+            TextWelcome()
 
-            TextField(
+            CustomTextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text("Email", fontWeight = FontWeight.Bold, color = Color.Gray) },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
-                ),
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.Email,
-                        contentDescription = null,
-                        tint = Color.Black
-                    )
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    focusedContainerColor = Color.LightGray,
-                    unfocusedContainerColor = Color(0x171F41BB),
-                    cursorColor = Color.Black,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                shape = RoundedCornerShape(10.dp),
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-                    .border(1.dp, Color.Blue, shape = RoundedCornerShape(10.dp))
+                labelText = "Email",
+                icon = Icons.Default.Email
             )
 
-            TextField(
+            CustomTextField(
                 value = password,
                 onValueChange = { password = it },
-                placeholder = { Text("Senha", color = Color.Gray, fontWeight = FontWeight.Bold) },
-                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
-                ),
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.Lock,
-                        contentDescription = null,
-                        tint = Color.Black
-                    )
-                },
-                trailingIcon = {
-                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-                        val visibilityOn = painterResource(id = R.drawable.ic_visibility)
-                        val visibilityOff = painterResource(id = R.drawable.ic_visibility_off)
-
-                        Icon(
-                            painter = if (isPasswordVisible) visibilityOff else visibilityOn,
-                            contentDescription = if (isPasswordVisible) "Hide password" else "Show password",
-                            modifier = Modifier.size(26.dp),
-                            tint = Color.Black
-                        )
-                    }
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    focusedContainerColor = Color.LightGray,
-                    unfocusedContainerColor = Color(0x171F41BB),
-                    cursorColor = Color.Black,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                shape = RoundedCornerShape(10.dp),
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-                    .border(1.dp, Color.Blue, shape = RoundedCornerShape(10.dp))
+                labelText = "Password",
+                icon = Icons.Default.Lock,
+                isPassword = true,
+                isPasswordVisible = isPasswordVisible
             )
 
-            Text(
-                text = "Esqueceu a senha?",
-                modifier = Modifier.align(Alignment.End),
-                style = TextStyle(color = Color.Blue, fontSize = 14.sp)
+            TextForgotPassword(
+                modifier = Modifier.align(Alignment.End)
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Button(
-                onClick = { /* Handle login */ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Blue),
-                shape = RoundedCornerShape(10.dp)
-            ) {
-                Text(
-                    text = "Conecte-se",
-                    fontSize = 16.sp,
-                    color = Color.White
-                )
-            }
+            LoginBtn(onClick = {  })
         }
     }
 }
